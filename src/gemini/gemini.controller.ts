@@ -2,6 +2,8 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { GeminiService } from './gemini.service';
 import { BasicPromptDto } from './dtos/basic-prompt.dto';
 import { FoodAnalysisDto } from './dtos/food-analysis.dto';
+import { SuggestionsDto } from './dtos/suggestions.dto';
+import { ChatDto } from './dtos/chat.dto';
 
 @Controller('gemini')
 export class GeminiController {
@@ -16,5 +18,14 @@ export class GeminiController {
       analyzeFood(@Body() foodAnalysisDto: FoodAnalysisDto){
       return this.geminiService.analyzeFood(foodAnalysisDto);
     }
-  
+
+    @Post('suggestions')
+      getSuggestions(@Body() suggestionsDto: SuggestionsDto){
+      return this.geminiService.getSuggestions(suggestionsDto);
+    }
+
+    @Post('chat')
+      chat(@Body() chatDto: ChatDto){
+      return this.geminiService.chat(chatDto);
+    }
 }
