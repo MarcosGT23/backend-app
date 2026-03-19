@@ -24,7 +24,7 @@ export const analyzeFoodUseCase = async (
     `;
 
     const result = await ai.models.generateContent({
-        model: "gemini-embedding-001",
+        model: "gemini-1.5-flash",
         contents: [
             {
                 role: "user",
