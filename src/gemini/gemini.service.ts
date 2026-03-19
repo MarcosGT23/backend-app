@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { GoogleGenAI } from "@google/genai";
 import { BasicPromptDto } from './dtos/basic-prompt.dto';
 import { FoodAnalysisDto } from './dtos/food-analysis.dto';
@@ -11,23 +12,54 @@ import { chatUseCase } from './use-cases/chat.use-case';
 
 @Injectable()
 export class GeminiService {
-    private ai = new GoogleGenAI({
-        apiKey: process.env.GOOGLE_API_KEY,
-    });
+    private readonly logger = new Logger(GeminiService.name);
+    private ai: GoogleGenAI;
+
+    constructor(private configService: ConfigService) {
+        const apiKey = this.configService.get<string>('GOOGLE_API_KEY');
+        if (!apiKey) {
+            this.logger.error('GOOGLE_API_KEY is not defined in the environment variables');
+        }
+        this.ai = new GoogleGenAI({
+            apiKey: apiKey,
+        });
+    }
 
     async basicPrompt(basicPromptDto: BasicPromptDto){
-        return basicPromptUseCase(this.ai, basicPromptDto);
+        try {
+            return await basicPromptUseCase(this.ai, basicPromptDto);
+        } catch (error) {
+            this.logger.error(`Error in basicPrompt: ${error.message}`, error.stack);
+            throw error;
+        }
     }
 
     async analyzeFood(foodAnalysisDto: FoodAnalysisDto){
-        return analyzeFoodUseCase(this.ai, foodAnalysisDto);
+        try {
+            return await analyzeFoodUseCase(this.ai, foodAnalysisDto);
+        } catch (error) {
+            this.logger.error(`Error in analyzeFood: ${error.message}`, error.stack);
+            throw error;
+        }
     }
 
     async getSuggestions(suggestionsDto: SuggestionsDto){
-        return suggestionsUseCase(this.ai, suggestionsDto);
+        try {
+            return await suggestionsUseCase(this.ai, suggestionsDto);
+        } catch (error) {
+            this.logger.error(`Error in getSuggestions: ${error.message}`, error.stack);
+            throw error;
+        }
     }
 
     async chat(chatDto: ChatDto){
-        return chatUseCase(this.ai, chatDto);
+        try {
+            this.logger.log(`Starting chat with message: ${chatDto.message.substring(0, 50)}...`);
+            const result = await chatUseCase(this.ai, chatDto);
+            return result;
+        } catch (error) {
+            this.logger.error(`Error in chat: ${error.message}`, error.stack);
+            throw error;
+        }
     }
 }
