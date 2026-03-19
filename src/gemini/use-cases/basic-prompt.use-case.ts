@@ -13,7 +13,7 @@ export const basicPromptUseCase = async (
 ) => {
 
     const {
-        model = 'gemini-1.5-flash',
+        model = 'gemini-3-flash-preview',
         systemInstruction = 'Responde únicamente en español en formato markdown.',
     } = options?? {};
 
